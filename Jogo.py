@@ -33,8 +33,19 @@ pygame.display.set_caption("Jogo A+")
 relogio = pygame.time.Clock()
 
 branco = (255,255,255)
-cor = (199,111,80)
-cor2 = (150,150,150)
+cordebosta = (199,111,80)
+cinza = (108,108,108)
+vermelho =(230,0,0)
+
+
+cacto=pygame.rect(10,10,10,10)
+boladefogo=pygame.rect(10,20,10,20)
+
+
+
+
+
+
 
 
 #======================= LOOP PRINCIPAL =============================
@@ -48,7 +59,7 @@ def loop():
             if event.type == pygame.QUIT:
                 rodando = False
 
-             if event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN:
                 
                 if event.key == pygame.K_s or event.key == pygame.K_DOWN: 
                     aviao.move_ip(0,20)
@@ -70,14 +81,23 @@ def loop():
 
 
 
+        correndo = True
+        while correndo:
+            pygame.draw.rect(tela,cor,cacto)
+            cacto.move_ip(20,0)
+            pygame.draw.rect(tela,vermelho,boladefogo)
+            cacto.move_ip(15,0)
+            
+        
+        
         
         tela.fill(branco)
         relogio.tick(30)
         
         
         # aviao e balao sao representados por retangulos ainda
-        pygame.draw.rect(tela,cor,aviao)
-        pygame.draw.rect(tela,cor2,balao)
+        pygame.draw.rect(tela,cordebosta,aviao)
+        pygame.draw.rect(tela,cinza,balao)
         
         
         pygame.display.update()    
