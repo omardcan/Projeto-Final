@@ -8,14 +8,11 @@ tela = pygame.display.set_mode((1000, 600),0,32)
 pygame.display.set_caption("Space Rock ")
 relogio = pygame.time.Clock()
 arial = pygame.font.match_font('arial')
-pygame.mixer.music.load('audio_fundo_1.mp3')
-pygame.mixer.music.play(-1)
-
-
+#pygame.mixer.music.load('audio_fundo_1.mp3')
+#pygame.mixer.music.play(-1)
 
 FPS = 60
 temp = 0
-
 
 branco = (255,255,255)
 marrom = (199,111,80)
@@ -26,7 +23,7 @@ amarelo = (255,255,0)
 
 score = 0
 vidas = 3
-timer = 0
+vidasAlien = 0
 
 with open ("arquivo_highScore.json","r") as arquivo:
     high = int(arquivo.read())
@@ -122,13 +119,12 @@ class Tiros(pygame.sprite.Sprite):
         self.rect.x += 40
         
 class Cometa(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self,imagem_cometa):
         pygame.sprite.Sprite.__init__(self)
-        for i in range(2):
-            self.image = pygame.image.load("cometa_{}_.png".format(i))
+        self.image = pygame.image.load(imagem_cometa)
         self.image = pygame.transform.scale(self.image,(180,90))
         self.rect = self.image.get_rect()
-        self.rect.x = 800
+        self.rect.x = 1200
         self.rect.y = randrange(0,500)
         self.velx = -10
     def move(self):
@@ -180,7 +176,6 @@ class Ataque(pygame.sprite.Sprite):
     def move(self):
         self.rect.x -= 3
 
-
 class Foguete(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
@@ -211,114 +206,156 @@ fundo_group.add(fundo2)
 timer = 0
 timer2 = 0
 
+#======================== MENU INCIAL ==============================
+
+
+
+
 #======================= LOOP PRINCIPAL =============================
-
-def Play():
-    y=0
-    rodando = True
-    while rodando:
-        relogio.tick(FPS)
-        
-        timer += 1
-        if timer == 20  :
-            aleatorio = randrange(0,100)
-            if aleatorio > 10 and aleatorio < 50:
-                meteoro = Meteoro()
-                meteoro_group.add(meteoro)
-            if aleatorio > 50 and aleatorio < 55:
-                coracao = Coracao()
-                coracao_group.add(coracao)
-            if aleatorio > 55 and aleatorio < 60:
-                for i in range(2):
-                    cometa = Cometa("cometa_{}_.png".format(i))
-                cometa_group.add(cometa)
-            timer = 0
-            
-        
-        fundo_group.draw(tela)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                rodando = False
-            
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    rodando = False
-                
-                if event.key == pygame.K_SPACE:
-                    tiros = Tiros()
-                    aviao_group.add(tiros)
-                    tiro_group.add(tiros)
-        for tiros in tiro_group:
-            tiros.move()
-            if tiros.rect.x >= 1100:
-                tiro_group.remove(tiros)
-        if score == 10:
-            score += 1
-            alien = Alien()
-            alien_group.add(alien)
-        
-        for meteoro in meteoro_group:
-            meteoro.move()
-            if meteoro.rect.x <= -400:
-                meteoro_group.remove(meteoro)
-        
-        for cometa in cometa_group:
-            cometa.move()
-        
-        for coracao in coracao_group:
-            coracao.move()
-        try:
-            alien.move()
-            #ataque.move()
-        except: ''
-        
-        aviao.move()
-        fundo.move()
-        fundo2.move()
-        
-        acertou = pygame.sprite.groupcollide(tiro_group,meteoro_group,True, True)
-        for matou in acertou:
-            score +=1 
-        
-        hit = pygame.sprite.spritecollide(aviao,meteoro_group,True)
-        if hit:
-            vidas -= 1
-            meteoro_group.remove(meteoro)
-        
-        
-        hit_mortal = pygame.sprite.spritecollide(aviao,cometa_group,True)
-        if hit_mortal:
-            vidas -= 3 
-            cometa_group.remove(cometa)
-        
-        pegaVida = pygame.sprite.spritecollide(aviao,coracao_group,True)
-        if pegaVida:
-            if vidas < 3:
-                coracao_group.remove(coracao)
-                vidas += 1
-            
-        if vidas <= 0:
-            timer = +1
-            rodando = False
-        
-        
-        Escreve("Pontos: {}".format(score),20,arial,amarelo,80,20)
-        Escreve("Vidas: {}".format(vidas),20,arial,amarelo,180,20)
-        Escreve("High Score: {}".format(high),20,arial,amarelo,100,40)
-        if score > high:
-            high = score
-        
-        aviao_group.draw(tela)
-        alien_group.draw(tela)
-        coracao_group.draw(tela)
-        cometa_group.draw(tela)
-        meteoro_group.draw(tela)
-        tiro_group.draw(tela)
-        
-        pygame.display.update()
-    with open("arquivo_highScore.json","w") as arquivo:
-        arquivo.write("{}".format(high))
+rodando = True
+while rodando:
+    relogio.tick(FPS)
     
-    pygame.quit()
+    timer += 1
+    if timer == 20  :
+        aleatorio = randrange(0,100)
+        if aleatorio > 10 and aleatorio < 50:
+            meteoro = Meteoro()
+            meteoro_group.add(meteoro)
+        if aleatorio > 50 and aleatorio < 55:
+            coracao = Coracao()
+            coracao_group.add(coracao)
+        if aleatorio > 55 and aleatorio < 60:
+            cometa = Cometa("cometa_0_.png")
+            cometa_group.add(cometa)
+        timer = 0
+        
+    
+    fundo_group.draw(tela)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+        
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                pygame.quit()
+            
+            if event.key == pygame.K_SPACE:
+                tiros = Tiros()
+                tiro_group.add(tiros)
 
-Play()                
+    for tiros in tiro_group:
+        tiros.move()
+        if tiros.rect.x >= 1100:
+            tiro_group.remove(tiros)
+
+    if score%100 == 0 and score != 0:
+        score += 1
+        alien = Alien()
+        alien_group.add(alien)
+        vidasAlien = 20
+    if vidasAlien != 0:
+        Escreve("Alien: {}".format(vidasAlien),20,arial,amarelo,580,20)
+
+
+    for meteoro in meteoro_group:
+        meteoro.move()
+        if meteoro.rect.x <= -400:
+            meteoro_group.remove(meteoro)
+    
+    for cometa in cometa_group:
+        cometa.move()
+    
+    for coracao in coracao_group:
+        coracao.move()
+    try:
+        alien.move()
+
+    except: ''
+    
+    aviao.move()
+    fundo.move()
+    fundo2.move()
+    
+    try:
+        
+        mataalien = pygame.sprite.groupcollide(tiro_group,alien_group,True,False)
+        for shot in mataalien:
+            vidasAlien -= 1
+            if vidasAlien <= 0:
+                alien_group.remove(alien)
+                score += 20
+    except:
+        ""
+    acertou = pygame.sprite.groupcollide(tiro_group,meteoro_group,True, True)
+    for matou in acertou:
+        score += 10
+    
+    hit = pygame.sprite.spritecollide(aviao,meteoro_group,True)
+    if hit:
+        vidas -= 1
+        meteoro_group.remove(meteoro)
+    
+    
+    hit_mortal = pygame.sprite.spritecollide(aviao,cometa_group,True)
+    if hit_mortal:
+        vidas -= 3
+        cometa_group.remove(cometa)
+    
+    pegaVida = pygame.sprite.spritecollide(aviao,coracao_group,True)
+    if pegaVida:
+        if vidas < 3:
+            coracao_group.remove(coracao)
+            vidas += 1
+    
+    
+    Escreve("Pontos: {}".format(score),20,arial,amarelo,80,20)
+    Escreve("Vidas: {}".format(vidas),20,arial,amarelo,180,20)
+    Escreve("High Score: {}".format(high),20,arial,amarelo,100,40)
+    if score > high:
+        high = score
+    
+    aviao_group.draw(tela)
+    alien_group.draw(tela)
+    
+    coracao_group.draw(tela)
+    cometa_group.draw(tela)
+    meteoro_group.draw(tela)
+    tiro_group.draw(tela)
+    
+    
+
+    # Tela GAME OVER
+    while vidas <= 0:
+        relogio.tick(FPS)
+        tela.fill(vermelho)
+        
+        Escreve("Jogar Novamente: x",50,arial,amarelo,500,200)
+        Escreve("Sair: y",50,arial,amarelo,500,260)
+        for event in pygame.event.get():    
+            if event.key == pygame.K_y:
+                with open("arquivo_highScore.json","w") as arquivo:
+                    arquivo.write("{}".format(high))
+                pygame.quit()
+            if event.key == pygame.K_x:
+                score = 0
+                vidas = 3
+                for meteoro in meteoro_group:
+                    meteoro_group.remove(meteoro)
+                for coracao in coracao_group:
+                    coracao_group.remove(coracao)
+                try:
+                    vidasAlien = 0
+                    alien_group.remove(alien)
+                except:
+                    ''    
+        pygame.display.update()
+
+    pygame.display.update()
+with open("arquivo_highScore.json","w") as arquivo:
+    arquivo.write("{}".format(high))
+
+pygame.quit()
+
+
+
