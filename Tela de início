@@ -1,0 +1,33 @@
+import pygame
+import sys
+from pygame.locals import *
+from random import randrange
+
+#inicialização
+
+pygame.init()
+
+tela = pygame.display.set_mode((1280, 1015), 0, 32)
+
+pygame.display.set_caption ('Jogo DeSoft')
+
+#imagem fundo=(https://wallpapersafari.com/w/9tKhlA)
+fundo = pygame.image.load("9tKhlA.jpg").convert()
+
+#loopingprincipal
+while True:
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            exit()
+        tela.blit(fundo, (0,0))
+    
+    pygame.font.init()
+    pygame.font.SysFont("Arial", 20)
+    fonte_Arial = pygame.font.SysFont("Arial", 20)
+    texto = fonte_Arial.render ("Press SPACE to START", 1, (255, 255, 255))
+
+    if event.type == pygame.KEYDOWN:
+        if event.key == K_SPACE:
+            pass
+        
+    pygame.display.update()
