@@ -1,3 +1,8 @@
+
+import pygame
+import pygame.locals
+from random import randrange
+
 pygame.init()
 tela = pygame.display.set_mode((1000, 600),0,32)
 pygame.display.set_caption("Space Rock ")
@@ -25,8 +30,13 @@ timer = 0
 
 with open ("arquivo_highScore.json","r") as arquivo:
     high = int(arquivo.read())
-
 #======================= CLASSES ====================================
+def Escreve(texto,size,fonte,cor,x,y):
+    font = pygame.font.Font(fonte,size)
+    ts = font.render(texto,True,cor)
+    texto_rect = ts.get_rect()
+    texto_rect.midtop = (x,y)
+    tela.blit(ts,texto_rect)
 
 class Aviao(pygame.sprite.Sprite):
     
@@ -110,28 +120,99 @@ class Tiros(pygame.sprite.Sprite):
             self.rect.x = aviao.rect.x + 11
             self.rect.y = aviao.rect.y + 50
         self.rect.x += 40
+        
+class Cometa(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        for i in range(2):
+            self.image = pygame.image.load("cometa_{}_.png".format(i))
+        self.image = pygame.transform.scale(self.image,(180,90))
+        self.rect = self.image.get_rect()
+        self.rect.x = 800
+        self.rect.y = randrange(0,500)
+        self.velx = -10
+    def move(self):
+        self.rect.x += self.velx
+
+class Coracao(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("heart.png")
+        self.image = pygame.transform.scale(self.image,(100,100))
+        self.rect = self.image.get_rect()
+        self.rect.x = randrange(2000,5000)
+        self.rect.y = randrange(0,500)
+        
+    def move(self):
+        self.rect.x -= 3
+
+class Alien(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("imagem_alien1.png")
+        self.image = pygame.transform.scale(self.image,(200,200))
+        self.rect = self.image.get_rect()
+        self.rect.x = 1100
+        self.rect.y = randrange(0,500)
+        self.subindo = True
+        
+    def move(self):
+        if self.rect.x >= 700:
+            self.rect.x -= 2
+        if self.rect.x <= 750:
+            if self.rect.y >= 0 and self.subindo:
+                self.rect.y -= 5
+                if self.rect.y <= 0:
+                    self.subindo = False
+            if self.rect.y <= 550 and not self.subindo:
+                self.rect.y += 5
+                if self.rect.y >= 450:
+                    self.subindo = True
+
+class Ataque(pygame.sprite.Sprite):
+    
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface([15,5])
+        self.image.fill(vermelho)
+        self.rect = self.image.get_rect()
+        
+    def move(self):
+        self.rect.x -= 3
+
+
+class Foguete(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(".png")
+        self.image = pygame.transform.scale(self.image,(200,200))
+        self.rect = self.image.get_rect()
+
+
 #====================== INICIAÇÃO ===================================
-pygame.init()
 
-tela = pygame.display.set_mode((800,600),0,32)
-
-pygame.display.set_caption("Jogo A+")
-
-fundo = pygame.image.load("imagem_fundo.jpg").convert()
-
-relogio = pygame.time.Clock()
-balao_group = pygame.sprite.Group()
-balao = Balao("imagem_balao.png")
-
-aviao = Aviao("imagem_nave.jpeg",40,40)
 aviao_group = pygame.sprite.Group()
-aviao_group.add(aviao)
+meteoro_group = pygame.sprite.Group()
+tiro_group = pygame.sprite.Group()
+fundo_group = pygame.sprite.Group()
+cometa_group = pygame.sprite.Group()
+coracao_group = pygame.sprite.Group()
+alien_group = pygame.sprite.Group()
+ataque_group = pygame.sprite.Group()
 
-for i in range(2):
-    balao = Balao("imagem_balao.png")
-    balao = Balao("imagem_balao.png",random.randrange(750,800),random.randrange(600))
-    balao_group.add(balao)
+fundo = Fundo(0,0)
+fundo2 = Fundo2(1920,0)
+   
+aviao = Aviao("imagem_nave.png",40,40)
+
+aviao_group.add(aviao)
+fundo_group.add(fundo)
+fundo_group.add(fundo2)
+timer = 0
+timer2 = 0
+
 #======================= LOOP PRINCIPAL =============================
+
 def Play():
     y=0
     rodando = True
@@ -180,7 +261,53 @@ def Play():
             meteoro.move()
             if meteoro.rect.x <= -400:
                 meteoro_group.remove(meteoro)
-                
+        
+        for cometa in cometa_group:
+            cometa.move()
+        
+        for coracao in coracao_group:
+            coracao.move()
+        try:
+            alien.move()
+            #ataque.move()
+        except: ''
+        
+        aviao.move()
+        fundo.move()
+        fundo2.move()
+        
+        acertou = pygame.sprite.groupcollide(tiro_group,meteoro_group,True, True)
+        for matou in acertou:
+            score +=1 
+        
+        hit = pygame.sprite.spritecollide(aviao,meteoro_group,True)
+        if hit:
+            vidas -= 1
+            meteoro_group.remove(meteoro)
+        
+        
+        hit_mortal = pygame.sprite.spritecollide(aviao,cometa_group,True)
+        if hit_mortal:
+            vidas -= 3 
+            cometa_group.remove(cometa)
+        
+        pegaVida = pygame.sprite.spritecollide(aviao,coracao_group,True)
+        if pegaVida:
+            if vidas < 3:
+                coracao_group.remove(coracao)
+                vidas += 1
+            
+        if vidas <= 0:
+            timer = +1
+            rodando = False
+        
+        
+        Escreve("Pontos: {}".format(score),20,arial,amarelo,80,20)
+        Escreve("Vidas: {}".format(vidas),20,arial,amarelo,180,20)
+        Escreve("High Score: {}".format(high),20,arial,amarelo,100,40)
+        if score > high:
+            high = score
+        
         aviao_group.draw(tela)
         alien_group.draw(tela)
         coracao_group.draw(tela)
