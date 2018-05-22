@@ -358,6 +358,3 @@ with open("arquivo_highScore.json","w") as arquivo:
 pygame.quit()
 
 
-
-#teste
-
