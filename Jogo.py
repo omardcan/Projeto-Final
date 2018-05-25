@@ -207,10 +207,27 @@ timer = 0
 timer2 = 0
 
 #======================== MENU INCIAL ==============================
+fundoinicial = pygame.image.load("9tKhlA.jpg").convert()
 
-
-
-
+#loopingprincipal
+while True:
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            exit()
+        tela.blit(fundoinicial, (0,0))
+    Escreve("Space Rock", 60, arial, branco, 500, 100)
+    Escreve("Press SPACE to START",40,arial,branco,700,500)
+    key = pygame.key.get_pressed()
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:        
+            intro = False
+            rodando = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                intro = False
+        
+    relogio.tick(60)
+    pygame.display.update()
 #======================= LOOP PRINCIPAL =============================
 rodando = True
 while rodando:
