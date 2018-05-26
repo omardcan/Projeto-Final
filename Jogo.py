@@ -169,12 +169,22 @@ class Ataque(pygame.sprite.Sprite):
     
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface([15,5])
-        self.image.fill(vermelho)
+        self.image = pygame.image.load("tiro.png")
+        #self.image = pygame.transform.scale(self.image,(200,100))
         self.rect = self.image.get_rect()
-        
+        self.rect.x = alien.rect.x+35
+        self.rect.y = alien.rect.y+120
+
     def move(self):
-        self.rect.x -= 3
+        #self.rect.x -= 10
+        if self.rect.y < aviao.rect.y:  
+            self.rect.y += 10
+        if self.rect.y > aviao.rect.y:  
+            self.rect.y -= 10   
+        if self.rect.y == aviao.rect.y:
+            self.rect.y += 0
+    def continuo(self):
+        self.rect.x -= 10
 
 class Foguete(pygame.sprite.Sprite):
     def __init__(self):
@@ -207,25 +217,21 @@ timer = 0
 timer2 = 0
 
 #======================== MENU INCIAL ==============================
-fundoinicial = pygame.image.load("9tKhlA.jpg").convert()
+fundoinicial = pygame.image.load("imagem_fundoinicial.jpg").convert()
 
-#loopingprincipal
-while True:
+intro = True
+while intro:
     for event in pygame.event.get():
-        if event.type == QUIT:
-            exit()
-        tela.blit(fundoinicial, (0,0))
-    Escreve("Space Rock", 60, arial, branco, 500, 100)
-    Escreve("Press SPACE to START",40,arial,branco,700,500)
-    key = pygame.key.get_pressed()
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:        
-            intro = False
-            rodando = False
+        if event.type == pygame.QUIT:
+            pygame.quit()
         if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                pygame.quit()
             if event.key == pygame.K_SPACE:
                 intro = False
-        
+    tela.blit(fundoinicial,(0,0))
+    Escreve("Space Rock", 60, arial, branco, 500, 100)
+    Escreve("Press SPACE to START",40,arial,branco,700,500)    
     relogio.tick(60)
     pygame.display.update()
 #======================= LOOP PRINCIPAL =============================
