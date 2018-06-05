@@ -252,7 +252,7 @@ vidasAlien = 0
 mode = 0
 conts = 0
 #======================== MENU INCIAL ==============================
-fundoinicial = pygame.image.load("imagem_fundo.jpg").convert()
+fundoinicial = pygame.image.load("tela inicio.jpg").convert()
 
 intro = True
 while intro:
