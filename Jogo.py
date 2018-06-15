@@ -1,6 +1,10 @@
+
 import pygame
 import pygame.locals
 from random import randrange
+from firebase import firebase
+#firebase = firebase.FirebaseApplication("https://jogo-final-design-de-software.firebaseio.com/",None)
+#HS = firebase.get("",None)
 
 pygame.init()
 tela = pygame.display.set_mode((1000, 600),0,32)
@@ -190,16 +194,14 @@ class Alien(pygame.sprite.Sprite):
 
 class Ataque(pygame.sprite.Sprite):
     
-    def __init__(self):
+    def __init__(self,pox,poy):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load("tiro.png")
-        #self.image = pygame.transform.scale(self.image,(200,100))
         self.rect = self.image.get_rect()
-        self.rect.x = alien.rect.x+35
-        self.rect.y = alien.rect.y+120
+        self.rect.x = alien.rect.x+pox
+        self.rect.y = alien.rect.y+poy
 
     def move(self):
-        #self.rect.x -= 10
         if self.rect.y < aviao.rect.y:  
             self.rect.y += 10
         if self.rect.y > aviao.rect.y:  
@@ -290,7 +292,7 @@ while intro:
     Escreve("Space Rock", 110, algerian, verde, 500, 50)
     Escreve("Press SPACE to KEYBOARD",40,cooper,amarelo,500,270)
     Escreve("Press C to CONTROL",40,cooper,amarelo,500,370)
-    Escreve("Press M to Manual",40,cooper,amarelo,500,470) 
+    #Escreve("Press M to Manual",40,cooper,amarelo,500,470) 
     relogio.tick(60)
     pygame.display.update()
 
@@ -328,20 +330,20 @@ while rodando:
     if timer == 20  :
         aleatorio = randrange(0,100)
         if len(alien_group) <= 0:
-            if aleatorio > 10 and aleatorio < 60:
+            if aleatorio > 10 and aleatorio < 75:
                 meteoro = Meteoro()
                 meteoro_group.add(meteoro)
-            if aleatorio > 55 and aleatorio < 58:
+            if aleatorio > 57 and aleatorio < 58:
                 cometa = Cometa("cometa_0_.png")
                 cometa_group.add(cometa)
         if aleatorio > 50 and aleatorio < 57:
                 coracao = Coracao()
                 coracao_group.add(coracao)
         try:
-            if aleatorio > 40 and aleatorio < 80: 
-                ataque = Ataque()
-                ataque1 = Ataque()
-                ataque2 = Ataque()
+            if aleatorio > 40 and aleatorio < 65: 
+                ataque = Ataque(35,120)
+                ataque1 = Ataque(65,120)
+                ataque2 = Ataque(95,120)
                 ataque_group.add(ataque)
                 ataque_group.add(ataque1)
                 ataque_group.add(ataque2)
@@ -377,10 +379,14 @@ while rodando:
             if event.type == pygame.QUIT:
                 pygame.quit()
             
-            if event.type == pygame.JOYBUTTONDOWN:    
-                tiros = Tiros()
-                tiro_group.add(tiros)
-        
+            if event.type == pygame.JOYBUTTONDOWN:
+                if event.button == 2:    
+                    print(event)
+                    tiros = Tiros()
+                    tiro_group.add(tiros)
+                elif event.button == 1:
+                    foguete = Foguete()
+                    foguete_group.add(foguete)
     for tiros in tiro_group:
         tiros.move()
         if tiros.rect.x >= 1100:
@@ -425,7 +431,7 @@ while rodando:
     
     tim +=1
     try:
-        if tim == FPS*1:
+        if tim == FPS*0.7:
             for ex in explosao_group:
                 explosao_group.remove(ex)
             tim = 0
@@ -440,12 +446,14 @@ while rodando:
             vidasAlien -= 1
             if vidasAlien <= 0:
                 alien_group.remove(alien)
-                score += 20
+                score += 51
     except:
         ""
     acertou = pygame.sprite.groupcollide(tiro_group,meteoro_group,True, True)
+    #========================aaaaaaqquuquuuiiiiii===================================================================================================
     for matou in acertou:
-        score += 5
+        score += 2
+
     
     hit = pygame.sprite.spritecollide(aviao,meteoro_group,True)
 
@@ -469,10 +477,10 @@ while rodando:
     
     elimina = pygame.sprite.groupcollide(foguete_group,alien_group,True, False)
     if elimina:
-        vidasAlien -= 10
+        vidasAlien -= 5
         if vidasAlien <= 0:
-                alien_group.remove(alien)
-                score += 20
+            alien_group.remove(alien)
+            score += 51
     xxxx = pygame.sprite.groupcollide(ataque_group,aviao_group,True,False)
     if xxxx:
         explode = Explosao(aviao)
@@ -604,7 +612,7 @@ while rodando:
             vidasAlien -= 10
             if vidasAlien <= 0:
                     alien_group.remove(alien)
-                    score += 20
+                    score += 51
         Escreve("Pontos: {}".format(score),28,cooper,amarelo,80,20)
         Escreve("Vidas: {}".format(vidas),40,cooper,amarelo,350,20)
         Escreve("High Score: {}".format(high),28,cooper,amarelo,126,47)
@@ -637,7 +645,7 @@ while rodando:
                     pygame.quit()
                 if event.key == pygame.K_x:
                     score = 0
-                    vidas = 3
+                    vidas = 3 
                     for meteoro in meteoro_group:
                         meteoro_group.remove(meteoro)
                     for coracao in coracao_group:
@@ -653,24 +661,28 @@ while rodando:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                 if event.type == pygame.JOYBUTTONDOWN:
-                    score = 0
-                    vidas = 3
-                    for meteoro in meteoro_group:
-                        meteoro_group.remove(meteoro)
-                    for coracao in coracao_group:
-                        coracao_group.remove(coracao)
-                    try:
-                        vidasAlien = 0
-                        for alien in alien_group:
-                            alien_group.remove(alien)
-                    except:
-                        '' 
-
+                    if event.button == 3:     
+                        score = 0
+                        vidas = 3
+                        for meteoro in meteoro_group:
+                            meteoro_group.remove(meteoro)
+                        for coracao in coracao_group:
+                            coracao_group.remove(coracao)
+                        try:
+                            vidasAlien = 0
+                            for alien in alien_group:
+                                alien_group.remove(alien)
+                        except:
+                            '' 
+                    if event.button == 4: 
+                        with open("arquivo_highScore.json","w") as arquivo:
+                            arquivo.write("{}".format(high))
+                        pygame.quit()
 
         pygame.display.update()
      #------------------------------------------------------------   
     pygame.display.update()
 with open("arquivo_highScore.json","w") as arquivo:
     arquivo.write("{}".format(high))
-
+#firebase.patch(highScore,high)
 pygame.quit()
